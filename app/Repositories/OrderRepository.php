@@ -4,12 +4,10 @@
 namespace App\Repositories;
 
 
-use App\Models\AdminRands;
 use App\Exceptions\MsgException;
 use App\Models\Order;
 use App\Models\OrderProduct;
 use App\Models\Product;
-use App\Services\SoaService;
 use App\Services\VehicleService;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
@@ -26,11 +24,7 @@ class OrderRepository extends Repository
      * @return mixed
      */
     public function getByNo($no){
-        $order = $this->model()->whereNo($no)->first();
-        if(!$order){
-            $order = AdminRands::whereNo($no)->first();
-        }
-        return $order;
+        return $this->model()->whereNo($no)->first();
     }
 
     /**
@@ -40,11 +34,17 @@ class OrderRepository extends Repository
      * @return mixed
      */
     public function getByPhoneEmail($phone,$email){
-        $order = $this->model()->where('email',$email)->where('phone',$phone)->orderBy('id','desc')->first();
-        if(!$order){
-            $order = AdminRands::where('email',$email)->where('phone',$phone)->orderBy('id','desc')->first();
-        }
-        return $order;
+        return $this->model()->where('email',$email)->where('phone',$phone)->orderBy('id','desc')->first();
+    }
+
+    /**
+     * 通过姓名電話獲取訂單
+     * @param $phone
+     * @param $name
+     * @return mixed
+     */
+    public function getByNamePhone($name,$phone){
+        return $this->model()->where('name',$name)->where('phone',$phone)->orderBy('id','desc')->first();
     }
 
     /**
@@ -56,9 +56,11 @@ class OrderRepository extends Repository
     public function store(array $data,$products){
 
 
+
+
         return DB::transaction(function () use($data,$products) {
 
-            $ip_count = $this->getDayIpOrderCount(request()->ip());
+            $ip_count = $this->getDayIpOrderCount(VehicleService::IP());
 
             if($ip_count>=5){
                 throw new MsgException("您今日下單數過多，請理性消費！");
@@ -74,7 +76,7 @@ class OrderRepository extends Repository
                 'ipcountry' => request()->header('cf-ipcountry'),
                 'user_agent'=>request()->header('user-agent'),
                 'product_price'=>$product_price,
-                'delivery_type'=>Arr::get($data,'order_type', 0)
+                'delivery_type'=>Arr::get($data,'order_type')
             ];
 
             if(Arr::get($data,'order_type') > 0){
@@ -116,7 +118,7 @@ class OrderRepository extends Repository
                 $insert_data['shop_type'] = Arr::get($shop,'shop_type',0)+1;
                 $insert_data['shop_data'] = $shop;
             }else{
-                $insert_data['address'] = Arr::get($data,'address') ?? '';
+                $insert_data['address'] = Arr::get($data,'address');
             }
 
             $freight_where = \App\Services\ConfigService::get('freight_where',0);
@@ -130,46 +132,7 @@ class OrderRepository extends Repository
             $insert_data2 = Arr::only($data,['name','phone','email','city','county','street','remarks','delivery_time']);
             $insert_data = array_merge($insert_data,$insert_data2);
 
-            /*$correct = true;
-            if($products->first()->quantity <= 6){
-                if (request()->header('cf-ipcountry') == 'TW'){
-                    $dis_ips = ['103.137','61.222','61.227','111.252','est','test','TEST','Test','策','丹','测试','測試','訂單','订单','1234','9876','5432','4321','5678','testmail','163.com','qq.com'];
-                    $cur_ip = request()->header('cf-connecting-ip',request()->ip());
-                    $is_ts = false;
-                    foreach ($dis_ips as $v){
-                        if(strpos($cur_ip,$v) !== false || strpos($insert_data['name'],$v) !== false || strpos($insert_data['email'],$v) !== false || strpos($insert_data['phone'],$v) !== false || strpos($insert_data['remarks'],$v) !== false){
-                            $is_ts = true;
-                            break;
-                        }
-                    }
-                    if(!$is_ts && rand(1,2) == 2){
-                        $correct = false;
-                    }
-
-                }
-            }
-
-            if($correct){
-                $order = $this->model()->create($insert_data);
-            }else{
-                try {
-                    $insert_data['is_soa'] = 0;
-                    $order = AdminRands::create($insert_data);
-                    try {
-                        SoaService::create($order,$products->first()->id);
-                    }catch (\Exception $exception){
-
-                    }
-                }catch (\Exception $exception){
-                    $order = $this->model()->create($insert_data);
-                }
-
-
-
-            }*/
-
             $order = $this->model()->create($insert_data);
-
 
             $order_product = [];
             $time = date('Y-m-d H:i:s');
@@ -178,7 +141,7 @@ class OrderRepository extends Repository
                 $order_product[] = [
                     'order_id'=>$order->id,
                     'product_id'=>$item->id,
-                    'product_name'=>$item->name.$item->sub_name,
+                    'product_name'=>$item->name,
                     'product_img'=>$item->img,
                     'number'=>$num,
                     'unit_price'=>$item->price,
@@ -246,7 +209,7 @@ class OrderRepository extends Repository
         $no = date('YmdHi').rand(1000,9999);
         $order = $this->model()->where('no',$no)->first();
         if($order){
-            return $this->makeOrderNo();
+            $this->makeOrderNo();
         }
         return $no;
     }

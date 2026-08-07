@@ -2,174 +2,241 @@
 
 @section('style')
     @parent
-    <link rel="stylesheet" href="{{ asset('static/mobile/less/message.css') }}?ver={{ config('app.asset_version') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('static/mobile/less/message.css') }}?ver={{ config('app.asset_version') }}"/>
+
 @stop
 
 @section('script')
     @parent
-    <script src="{{ asset('static/js/sweetalert2.js') }}?ver={{ config('app.asset_version') }}"></script>
-    <script src="{{ asset('static/js/jquery.form.js') }}?ver={{ config('app.asset_version') }}"></script>
-    <script src="{{ asset('static/js/api.js') }}?ver={{ config('app.asset_version') }}"></script>
-    <script>
+    <script src="{{ asset('static/js/jquery.contip.js') }}"></script>
+    <script src="{{ asset('static/js/sweetalert2.js') }}"></script>
+    <script src="{{ asset('static/js/api.js') }}"></script>
 
-        setInterval(function(){
-            if(messageVerify() == true){
-                $('.form-btn').addClass('activate-btn');
-            }else{
-                $('.form-btn').removeClass('activate-btn');
-            }
 
-        },1000);
-        function messageVerify(){
-            var name = $("input[name='name']").val();
-            var phone = $("input[name='phone']").val();
-            var email = $("input[name='email']").val();
-            var content = $("textarea[name='content']").val();
-            if(!name){
-                return false;
-            }
-            if(!phone){
-                return false;
-            }
-            if(!(/^09\d{8}$/.test(phone))){
-                return false;
-            }
-            if(!email){
-                return false;
-            }
-            if(email.search(/^([a-zA-Z0-9]+[_|_|.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|_|.]?)*[a-zA-Z0-9]+\.(?:com|cn|tw|info|net)$/) == -1){
-                return false;
-            }
-            if(!content){
-                return false;
-            }
-            return true;
-        }
-    </script>
-    <script>
-        $(window).scroll(function() {
-            bgEffect()
-
-        });
-
-        function bgEffect(){
-            let top = document.scrollingElement.scrollTop; //触发滚动条，记录数值
-            let banner_height = $('.fixed-bg').height()-40;
-            let opacity = 1-top/banner_height;
-            $('.fixed-bg').css('opacity',opacity);
-/*
-            if(opacity<=0.6){
-                $('.page-title').css('color','rgba(0,0,0,'+top/banner_height+')');
-            }else{
-                $('.page-title').css('color','#fff');
-            }
-*/
-
-            if(($(window).scrollTop() + $(window).height()).toFixed(0) == $(document).height()){
-                $('.fixed-bg').css('opacity',0);
-            }
-
-        }
-
-        $('.fqa li').each(function(){
-            var height = $(this).find('.answers').innerHeight();
-            $(this).css('--_height',height+'px');
-
-        });
-        $('.fqa li').click(function(){
-            if($(this).hasClass('show')){
-                $(this).removeClass('show');
-            }else{
-                $(this).addClass('show');
-            }
-        })
-    </script>
-
-    <script>
-        submit('#message-form', {});
-    </script>
 @stop
+
+@section('title-before','聯絡我們')
+
+@section('billboard-title','聯絡我們')
+
+@section('billboard-desc','禮來致力於為我們的客戶提供資訊。若您有疑問，請聯絡我們。')
 
 @section('content')
 
-    <section class="message-container" data-track-section="message" data-track-section-view data-track-section-label="取得協助">
-        <div class="fixed-bg" style="background-image: url('{{ asset_upload(app('cache.config')->get('page_message_back_img')) }}')">
-            <div class="mask"></div>
-            <p class="slogan">{!! app('cache.config')->get('page_message_title') !!}</p>
-        </div>
-        <div class="page-main">
-            <div class="page-head">
-                <p class="beat"><i class="iconfont">&#xe784;</i></p>
-                <h1 class="page-title">取得協助</h1>
+<section class="message-container">
 
+    <div class="side">
+
+        <div class="left-side">
+            <div class="head">
+                <p class="desc">
+                    {!! app('cache.config')->get('page_lianluo_desc') !!}
+                </p>
             </div>
-            <div class="page-body">
-                <div class="quick">
-                    <div class="describe">
-                        <p class="title">快速協助</p>
-                        <p class="text">
-                            {!! app('cache.config')->get('page_message_desc') !!}
-                        </p>
-                    </div>
-                    <ul class="fqa">
-                        @foreach($faqs as $item)
-                            <li>
-                                <p class="question"><a href="javascript:;">Q：{{ $item->questions }}</a></p>
-                                <p class="answers">{{ $item->answers }}</p>
-                            </li>
-                        @endforeach
-                    </ul>
-                    <p class="finis">{!! app('cache.config')->get('page_message_finis') !!}</p>
-                </div>
-
-                <div class="liaison">
-                    <div class="box">
-                        <p class="title">聯絡我們</p>
-                        <p class="text">
-                            {!! app('cache.config')->get('page_lianluo_desc') !!}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="form-pack">
-                    <form action="{{ url('message') }}" method="post" id="message-form">
-                        {{ csrf_field() }}
+            <div class="body">
+                <form action="" method="post" onsubmit="return messageStore()" id="message-form">
+                    {{ csrf_field() }}
+                    <div class="form-main">
                         <div class="form-group">
-                            <label>你的稱呼：</label>
-                            <input class="form-control" data-validate="required:請輸入你的稱呼" type="text" name="name" placeholder="請輸入你的稱呼">
+                            <label>姓名：</label>
+                            <input class="form-control" type="text" name="name" placeholder="請輸入你的稱呼">
+                        </div>
+                        <div class="form-group">
+                            <label>性別：</label>
+                            <div class="option">
+                                <div class="checkbox">
+                                    <input type="radio" class="form-radio" id="sex-0" name="sex" value="0" checked>
+                                    <label class="checked-label" for="sex-0">
+                                        <span class="dress"></span>
+                                        <span class="text">不透露</span>
+                                    </label>
+                                </div>
+                                <div class="checkbox">
+                                    <input type="radio" class="form-radio" id="sex-1" name="sex" value="1" >
+                                    <label class="checked-label" for="sex-1">
+                                        <span class="dress"></span>
+                                        <span class="text">先生</span>
+                                    </label>
+                                </div>
+                                <div class="checkbox">
+                                    <input type="radio" class="form-radio" id="sex-2" name="sex" value="2" >
+                                    <label class="checked-label" for="sex-2">
+                                        <span class="dress"></span>
+                                        <span class="text">女士</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>聯絡電話：</label>
-                            <input class="form-control" data-validate="required:請輸入你的聯絡電話|mobile:聯絡電話格式錯誤" type="tel" name="phone" placeholder="請輸入聯絡你的電話號碼" maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                            <input class="form-control" type="text" name="phone" placeholder="請輸入聯絡你的電話號碼">
                         </div>
                         <div class="form-group">
-                            <label>電子信箱：</label>
-                            <input class="form-control" data-validate="required:請輸入你的電子信箱|email:電子信箱格式錯誤" type="text" name="email" placeholder="請輸入聯絡你的電子信箱">
+                            <label>E-mail：</label>
+                            <input class="form-control" type="text" name="email" placeholder="請輸入聯絡你的電子郵箱">
                         </div>
                         <div class="form-group">
-                            <label>協助類型：</label>
+                            <label>留言類型：</label>
                             <select class="form-control" name="type">
-                                <option value="1">療程咨詢</option>
-                                <option value="2">退換貨</option>
+                                <option value="1">售前咨詢</option>
+                                <option value="2">劑量咨詢</option>
                                 <option value="3">修改訂單資訊</option>
-                                <option value="4">修改/新增訂單備注</option>
                                 <option value="5">意見或建議</option>
-                                <option value="0" selected>其他</option>
+                                <option value="6">退換貨</option>
+                                <option value="0" selected>其它</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>問題詳述：</label>
-                            <textarea class="form-control form-textarea" data-validate="required:請詳述你的問題或建議" name="content"  placeholder="請詳述你的問題或建議&#10;並提供您的訂單編號(如您已取得)"></textarea>
-                        </div>
 
                         <div class="form-group">
-                            <button class="form-btn" >確認送出</button>
+                            <label>留言內容：</label>
+                            <textarea class="form-control form-textarea" name="content" id="" cols="30" rows="10"></textarea>
                         </div>
-                    </form>
-                </div>
+                        <div class="form-group">
+                            <button class="form-btn">確認送出</button>
+
+                        </div>
+
+                    </div>
+                    <p class="protect">此頁面受到reCAPTCHA 保護<br>並適用<a href="https://policies.google.com/privacy" target="_blank">Google 隱私政策</a>及<a href="https://policies.google.com/terms" target="_blank">服務條款</a></p>
+                </form>
+
             </div>
-
         </div>
-    </section>
 
+        <div class="right-side">
+            <div class="contact">
+                <div class="group">
+                    <p class="p1">Cambridge, MA</p>
+                    <div class="specific">
+                        <p class="p2">
+                            Eli Lilly and Company
+                        </p>
+                        <p class="p3">
+                            450 Kendall Street<br>
+                            Cambridge, MA 02142
+                        </p>
+                    </div>
+                </div>
+
+                <div class="group">
+                    <p class="p1">Indianapolis, IN</p>
+                    <div class="specific">
+                        <p class="p2">
+                            Lilly Global Headquarters
+
+                        </p>
+                        <p class="p3">
+                            Eli Lilly and Company<br>
+                            Lilly Corporate Center<br>
+                            Indianapolis, IN 46285<br>
+                            +1-317-276-2000<br>
+                        </p>
+                    </div>
+                    <div class="specific">
+                        <p class="p2">
+                            Lilly USA
+                        </p>
+                        <p class="p3">
+                            1500 South Harding Street<br>
+                            Indianapolis, IN 46221<br>
+                            +1-317-433-1625
+                        </p>
+                    </div>
+                    <div class="specific">
+                        <p class="p2">
+                            Lilly Technology Center
+                        </p>
+                        <p class="p3">
+                            1200 W. Morris Street<br>
+                            Indianapolis, IN 46221<br>
+                            +1-317-651-7973
+                        </p>
+                    </div>
+                </div>
+
+                <div class="group">
+                    <p class="p1">New Jersey and New York</p>
+                    <div class="specific">
+                        <p class="p2">
+                            Lilly NJ-NY Branchburg Manufacturing Site
+                        </p>
+                        <p class="p3">
+                            33 ImClone Drive<br>
+                            Branchburg, NJ 08876
+                        </p>
+                    </div>
+
+                    <div class="specific">
+                        <p class="p2">
+                            Lilly NJ-NY Research Center
+                        </p>
+                        <p class="p3">
+                            Alexandria Center for Life Science<br>
+                            450 East 29th Street<br>
+                            12th Floor<br>
+                            New York, NY 10016
+                        </p>
+                    </div>
+                </div>
+
+                <div class="group">
+                    <p class="p1">Puerto Rico</p>
+                    <div class="specific">
+                        <p class="p2">
+                            Lilly Puerto Rico
+                        </p>
+                        <p class="p3">
+                            235 Federico Costa Street<br>
+                            Parque Las Américas I, Suite 401<br>
+                            San Juan, Puerto Rico 00918<br>
+                            +1-787-753-7070
+                        </p>
+                    </div>
+
+                    <div class="specific">
+                        <p class="p2">
+                            Lilly del Caribe, Inc.
+                        </p>
+                        <p class="p3">
+                            400 Calle Fabril<br>
+                            Carolina, Puerto Rico 00987<br>
+                            +1-787-257-5555
+                        </p>
+                    </div>
+                </div>
+
+                <div class="group">
+                    <p class="p1">San Diego, CA</p>
+                    <div class="specific">
+                        <p class="p2">
+                            Lilly Biotechnology Center San Diego
+                        </p>
+                        <p class="p3">
+                            10290 Campus Point Drive<br>
+                            San Diego, CA 92121<br>
+                            +1-858-597-4990
+                        </p>
+                    </div>
+                </div>
+
+                <div class="group">
+                    <p class="p1">Washington, DC</p>
+                    <div class="specific">
+                        <p class="p2">
+                            Eli Lilly and Company
+                        </p>
+                        <p class="p3">
+                            555 Twelfth Street NW<br>
+                            Suite 650 South<br>
+                            Washington, DC 20004<br>
+                            +1-202-434-1015
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</section>
 @endsection
