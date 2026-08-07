@@ -1,0 +1,57 @@
+1786082149s:1022:"header .logo-sec img{
+width:auto;
+height:30px;
+}
+.header .c-logo img {
+    height: 30px;
+}
+
+footer .footer-nav .menu-list li {
+    border-bottom: 1px solid var(--main-color);
+}
+
+footer .footer-nav .menu-list li a {
+    color: var(--main-color);
+}
+
+footer .footer-nav .menu-list li a:after {
+    border-color: transparent transparent transparent var(--main-color);
+}
+
+footer .footer-nav .office {
+    color: #333;
+}
+
+.section .section-inner h2 .cn{
+    color: #000;
+}
+
+.section .section-inner h2 .en{
+    color:var(--main-color);
+}
+
+@media screen and (min-width: 1024px) {
+.carousel .privacy {
+    width: 105%;
+    transform: translateX(-13vw);
+}
+}
+
+@media screen and (max-width: 1024px) {
+.carousel .picture .topic .pic .back {
+    height: 50vh;
+    background-position: 60% 50%;
+}
+.carousel .picture {
+  height: 50vh;
+}
+.carousel.shown .picture .swiper-container {
+    height: 53vh;
+}
+header .logo-sec img{
+height:20px;
+}
+.header .c-logo img {
+    height: 20px;
+}
+}";
