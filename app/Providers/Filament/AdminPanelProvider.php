@@ -27,7 +27,8 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id($adminPath)
-            ->path($adminPath)
+            ->path('')
+            ->domain(env('ADMIN_ROUTE_DOMAIN'))
             ->login(\App\Filament\Pages\Auth\Login::class)
             ->passwordReset()
             ->brandName(config('app.name'))
@@ -36,7 +37,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->font('Inter')
             ->favicon(asset('favicon.ico'))
-            ->spa()
             ->collapsibleNavigationGroups()
             ->navigationGroups([
                 '訂單管理',

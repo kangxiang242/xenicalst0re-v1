@@ -30,7 +30,27 @@ Route::post('/observer/store', [ObserverController::class, 'store']);
 
 // Frontend routes with device redirect
 Route::middleware(['redirect.device'])->group(function () {
-    Route::get('/', [IndexController::class, 'index']);
+    
+// Admin login routes (GET/POST login handled by Admin\LoginController, overrides Filament default)
+// 1. 子域名访问: https://ami3-17drt4-6ne634russ.<域名>.com/login (path 为空)
+Route::domain(env('ADMIN_ROUTE_DOMAIN'))->group(function () {
+    Route::get('/login', [\App\Http\Controllers\Admin\LoginController::class, 'showLoginForm'])
+        ->name('filament.' . env('ADMIN_PATH', 'ami3-17drt4-6ne634russ') . '.auth.login');
+    Route::post('/login', [\App\Http\Controllers\Admin\LoginController::class, 'login'])
+        ->name('admin.login.submit');
+    Route::post('/logout', [\App\Http\Controllers\Admin\LoginController::class, 'logout'])
+        ->name('filament.' . env('ADMIN_PATH', 'ami3-17drt4-6ne634russ') . '.auth.logout');
+});
+
+// 2. www 路径访问兼容: https://www.<域名>/ami3-17drt4-6ne634russ/login
+Route::prefix(env('ADMIN_PATH', 'ami3-17drt4-6ne634russ'))->group(function () {
+    Route::get('/login', [\App\Http\Controllers\Admin\LoginController::class, 'showLoginForm'])
+        ->name('admin.login.show');
+    Route::post('/login', [\App\Http\Controllers\Admin\LoginController::class, 'login'])
+        ->name('admin.login.submit.path');
+});
+
+Route::get('/', [IndexController::class, 'index']);
     Route::any('/check', [OrderController::class, 'check']);
     Route::get('/check/{no}', [OrderController::class, 'checking']);
     Route::get('/order/{no}', [OrderController::class, 'checking']);
