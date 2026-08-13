@@ -1,0 +1,5 @@
+<option value="">點我選擇門市</option>
+<?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $v): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+    <option value="<?php echo e($v['shop_no']); ?>"><?php echo e($v['shop_name']); ?>門市（<?php echo e(str_replace($city_name.$county_name,'',$v['shop_address'])); ?>）</option>
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+<?php /**PATH /Users/mac-2312-r/workspace/wwwroot/纤体-減肥/xenicalst0re/xenicalst0re-v1/resources/views/web/widgets/shopping-store-item.blade.php ENDPATH**/ ?>
