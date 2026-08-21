@@ -13,6 +13,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // 站点在 Cloudflare(Flexible SSL) 之后，origin 收 HTTP 请求，
+        // 必须信任代理的 X-Forwarded-Proto 头，否则 asset()/Livewire 生成 http:// 资源被浏览器拦截(混合内容)
+        $middleware->trustProxies(
+            at: '*',
+            headers: \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR
+                | \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST
+                | \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT
+                | \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO,
+        );
+
         $middleware->alias([
             'defend' => \App\Http\Middleware\DefendMiddleware::class,
             'redirect.device' => \App\Http\Middleware\RedirectDeviceMiddleware::class,
